@@ -4,18 +4,19 @@ import { formatJSONResponse } from "../../libs/api-gateway";
 import { middyfy } from "../../libs/lambda";
 
 import schema from "./schema";
+import { listOrders } from "../../services/orders";
 
 // Init models & MongoDb connection outside to avoid problems with connection pool
 const connection = init();
 
 export const controller: ValidatedEventAPIGatewayProxyEvent<
   typeof schema
-> = async (event) => {
+> = async () => {
   await connection;
 
-  return formatJSONResponse({
-    message: `Hello ${event.body.name}, welcome to the exciting Serverless world!`,
-  });
+  const orders = await listOrders();
+
+  return formatJSONResponse(orders);
 };
 
 export const main = middyfy(controller);

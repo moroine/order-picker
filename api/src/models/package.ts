@@ -1,14 +1,13 @@
 import { Schema, model, Types } from "mongoose";
 
 export interface IPackage {
-  // Map<productId, quantity>
-  content: Map<string, number>;
+  items: Types.ObjectId[];
   status: "pending" | "sent" | "received";
   order: Types.ObjectId;
 }
 
 export const packageSchema = new Schema<IPackage>({
-  content: { type: Map, of: Number, required: true },
+  items: [{ type: Schema.Types.ObjectId, ref: "Item", required: true }],
   status: {
     type: String,
     enum: ["pending", "sent", "received"],

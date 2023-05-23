@@ -6,7 +6,7 @@ import { ProductModel } from "./product";
 import { StaffModel } from "./staff";
 
 export const init = async () => {
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URL);
 
   await Promise.all([
     ClientModel.init(),
