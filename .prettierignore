@@ -11,4 +11,4 @@ api/.esbuild
 api/lib
 
 # Eslint
-.eslincache
+.eslintcache
