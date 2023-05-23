@@ -5,7 +5,7 @@
     "api"
   ],
   "engines": {
-    "node": ">=16.0.0",
+    "node": ">=18.0.0",
     "yarn": "please-use-npm",
     "npm": ">=8.0.0"
   },

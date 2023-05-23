@@ -9,3 +9,6 @@ api/.esbuild
 
 # typescript output dirs
 api/lib
+
+# Eslint
+.eslincache
