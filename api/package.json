@@ -5,7 +5,8 @@
   "main": "serverless.ts",
   "scripts": {
     "start": "sls offline",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --project tsconfig.json"
   },
   "engines": {
     "node": ">=14.15.0"

@@ -6,3 +6,6 @@ api/.serverless
 
 # esbuild directories
 api/.esbuild
+
+# typescript output dirs
+api/lib
