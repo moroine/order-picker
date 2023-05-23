@@ -3,6 +3,7 @@ import type { AWS } from "@serverless/typescript";
 import hello from "./src/functions/hello";
 
 const serverlessConfiguration: AWS = {
+  useDotenv: true,
   service: "order-picker",
   frameworkVersion: "3",
   plugins: ["serverless-esbuild", "serverless-offline"],
@@ -16,6 +17,7 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
       NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
+      MONGO_URI: "${env:MONGO_URI}",
     },
   },
   // import the function via paths

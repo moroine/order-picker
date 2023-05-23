@@ -12,3 +12,6 @@ api/lib
 
 # Eslint
 .eslintcache
+
+# Env
+.env
