@@ -20,7 +20,11 @@ describe("list-orders handler", () => {
     });
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual(
-      fixture?.orders.all.map((o) => o.toJSON())
+      fixture?.orders.all.map((o) => ({
+        _id: o._id.toString(),
+        clientName: fixture?.clients.idToClient[o.client.toString()].name,
+        status: o.status,
+      }))
     );
   });
 });

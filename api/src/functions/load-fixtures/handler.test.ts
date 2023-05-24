@@ -3,6 +3,10 @@ import { controller } from "./handler";
 import mongoose from "mongoose";
 
 describe("load-fixtures handler", () => {
+  beforeAll(async () => {
+    await mongoose.connection.dropDatabase();
+  });
+
   afterAll(async () => {
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
@@ -13,6 +17,6 @@ describe("load-fixtures handler", () => {
     const result = await controller();
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual({ success: true });
-    await expect(ClientModel.countDocuments()).resolves.toBe(2);
+    await expect(ClientModel.countDocuments()).resolves.toBe(3);
   });
 });

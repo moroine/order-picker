@@ -42,7 +42,7 @@ export default {
   <main>
     <div style="height: 400px">
       <el-table v-loading="loading" :data="orders">
-        <el-table-column fixed prop="client" label="Client" width="150" />
+        <el-table-column fixed prop="clientName" label="Client" width="150" />
         <el-table-column prop="status" label="Status" width="120" />
       </el-table>
     </div>

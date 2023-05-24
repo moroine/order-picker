@@ -5,7 +5,7 @@
   "main": "serverless.ts",
   "scripts": {
     "start": "sls offline",
-    "test": "jest src",
+    "test": "jest src --run-in-band",
     "build": "tsc --project tsconfig.json --noEmit"
   },
   "engines": {

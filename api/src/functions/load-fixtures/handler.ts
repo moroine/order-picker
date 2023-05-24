@@ -2,7 +2,7 @@ import { init } from "../../models";
 import { formatJSONResponse } from "../../libs/api-gateway";
 import { middyfy } from "../../libs/lambda";
 
-import { initMainFixture } from "src/fixtures/main";
+import { initMainFixture } from "../../fixtures/main";
 
 // Init models & MongoDb connection outside to avoid problems with connection pool
 const connection = init();

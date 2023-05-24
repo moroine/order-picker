@@ -31,6 +31,9 @@ type ClientFixture = {
   clientA: HydratedDocument<IClient>;
   clientB: HydratedDocument<IClient>;
   clientC: HydratedDocument<IClient>;
+  idToClient: {
+    [id: string]: HydratedDocument<IClient>;
+  };
 };
 
 async function createClients(): Promise<ClientFixture> {
@@ -38,12 +41,17 @@ async function createClients(): Promise<ClientFixture> {
   const clientB = new ClientModel({ name: "Client B" });
   const clientC = new ClientModel({ name: "Client C" });
 
-  await Promise.all([clientA, clientB, clientC]);
+  await Promise.all([clientA.save(), clientB.save(), clientC.save()]);
 
   return {
     clientA,
     clientB,
     clientC,
+    idToClient: {
+      [clientA._id.toString()]: clientA,
+      [clientB._id.toString()]: clientB,
+      [clientC._id.toString()]: clientC,
+    },
   };
 }
 
@@ -129,7 +137,12 @@ export type MainFixture = {
 
 export async function initMainFixture(): Promise<MainFixture> {
   await init();
-  await mongoose.connection.dropDatabase();
+  await Promise.all([
+    ClientModel.deleteMany({}),
+    ProductModel.deleteMany({}),
+    StaffModel.deleteMany({}),
+    OrderModel.deleteMany({}),
+  ]);
 
   const [clients, products, staff] = await Promise.all([
     createClients(),

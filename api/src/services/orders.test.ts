@@ -17,8 +17,12 @@ describe("orders", () => {
   describe("listOrders", () => {
     test("should returns all entries", async () => {
       const orders = await listOrders();
-      expect(orders.map((o) => o.toJSON())).toEqual(
-        fixture?.orders.all.map((o) => o.toJSON())
+      expect(orders).toEqual(
+        fixture?.orders.all.map((o) => ({
+          _id: o._id,
+          clientName: fixture?.clients.idToClient[o.client.toString()].name,
+          status: o.status,
+        }))
       );
     });
   });
