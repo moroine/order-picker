@@ -1,10 +1,10 @@
 import { HydratedDocument } from "mongoose";
 import { init } from "../models";
 import { ClientModel, IClient } from "../models/client";
-// import { IItem, ItemModel } from "../models/item";
 import { IOrder, OrderModel } from "../models/order";
 import { IProduct, ProductModel } from "../models/product";
 import { IStaff, StaffModel } from "../models/staff";
+import { IItem, ItemModel } from "../models/item";
 
 type StaffFixture = {
   isaac: HydratedDocument<IStaff>;
@@ -87,52 +87,145 @@ async function createProducts(): Promise<ProductFixture> {
   };
 }
 
-type OrdersFixture = {
-  ordersClientA: HydratedDocument<IOrder>[];
-  all: HydratedDocument<IOrder>[];
+async function createItemsForProduct(
+  product: IProduct,
+  count: number
+): Promise<HydratedDocument<IItem>[]> {
+  const items: HydratedDocument<IItem>[] = [];
+  for (let i = 0; i < count; i++) {
+    const ref = String(i).padStart(5, "0");
+    const item = new ItemModel({
+      uid: `${product.name}_V${product.version}_${ref}`,
+      client: null,
+      order: null,
+    });
+    items.push(item);
+  }
+
+  await Promise.all(items.map((i) => i.save()));
+  return items;
+}
+
+type ItemFixture = {
+  keyNeticV1Items: HydratedDocument<IItem>[];
+  keyNeticV2Items: HydratedDocument<IItem>[];
+  keyVibeV1Items: HydratedDocument<IItem>[];
 };
 
-async function createOrders(clients, products): Promise<OrdersFixture> {
-  const orderClientA1 = new OrderModel({
-    card: new Map([[products.KeyNeticV1.ref, 1]]),
-    status: "pending",
-    client: clients.clientA._id,
-  });
-
-  await orderClientA1.save();
-
-  const ordersClientA = [orderClientA1];
+async function createItems(products: ProductFixture): Promise<ItemFixture> {
+  const [keyNeticV1Items, keyNeticV2Items, keyVibeV1Items] = await Promise.all([
+    createItemsForProduct(products.KeyNeticV1, 5),
+    createItemsForProduct(products.KeyNeticV2, 100),
+    createItemsForProduct(products.KeyVibeV1, 80),
+  ]);
 
   return {
-    ordersClientA,
-    all: [...ordersClientA],
+    keyNeticV1Items,
+    keyNeticV2Items,
+    keyVibeV1Items,
   };
 }
 
-// async function createItems(
-//   product: IProduct,
-//   count: number,
-// ) {
-//   const items: IItem[] = [];
-//   const tasks: unknown[] = [];
-//   for (let i = 0; i < count; i++) {
-//     const ref = String(i).padStart(5, '0');
-//     const item = new ItemModel({
-//       uid: `${product.name}_V${product.version}_${ref}`,
-//     });
-//     items.push(item)
-//     tasks.push(item.save())
-//   }
+type OrdersFixture = {
+  pendingOrders: HydratedDocument<IOrder>[];
+  doneOrders: HydratedDocument<IOrder>[];
+  processingOrders: HydratedDocument<IOrder>[];
+  all: HydratedDocument<IOrder>[];
+};
 
-//   await Promise.all(tasks);
-//   return items;
-// }
+async function createOrders(
+  clients: ClientFixture,
+  products: ProductFixture,
+  items: ItemFixture
+): Promise<OrdersFixture> {
+  const availableItems: ItemFixture = {
+    keyNeticV1Items: [...items.keyNeticV1Items],
+    keyNeticV2Items: [...items.keyNeticV2Items],
+    keyVibeV1Items: [...items.keyVibeV1Items],
+  };
+
+  const doneOrderClientB1Items = availableItems.keyVibeV1Items.splice(0, 4);
+  const doneOrderClientB1 = new OrderModel({
+    card: new Map([
+      // All but one
+      [products.KeyNeticV1.ref, 4],
+    ]),
+    status: "done",
+    client: clients.clientB._id,
+    packages: [
+      {
+        status: "received",
+        items: doneOrderClientB1Items.map((i) => i.uid),
+      },
+    ],
+  });
+
+  const processingOrderClientA1Items = [
+    ...availableItems.keyNeticV1Items.splice(0, 1),
+    ...availableItems.keyVibeV1Items.splice(0, 4),
+  ];
+  const processingOrderClientA1 = new OrderModel({
+    card: new Map([
+      [products.KeyNeticV1.ref, 1],
+      [products.KeyNeticV2.ref, 3],
+      [products.KeyVibeV1.ref, 12],
+    ]),
+    status: "processing",
+    client: clients.clientA._id,
+    packages: [
+      {
+        status: "received",
+        items: processingOrderClientA1Items.map((i) => i.uid),
+      },
+    ],
+  });
+
+  const pendingOrderClientA1 = new OrderModel({
+    card: new Map([
+      [products.KeyNeticV1.ref, 1],
+      [products.KeyNeticV2.ref, 5],
+    ]),
+    status: "pending",
+    client: clients.clientA._id,
+    packages: [],
+  });
+
+  // Following order matter for tests, we need to introduce timestamp
+  await doneOrderClientB1.save();
+  await processingOrderClientA1.save();
+  await pendingOrderClientA1.save();
+
+  await Promise.all([
+    processingOrderClientA1Items.map((i) => {
+      i.client = clients.clientA._id;
+      i.order = processingOrderClientA1._id;
+      return i.save();
+    }),
+    doneOrderClientB1Items.map((i) => {
+      i.client = clients.clientB._id;
+      i.order = doneOrderClientB1._id;
+      return i.save();
+    }),
+  ]);
+
+  const pendingOrders = [pendingOrderClientA1];
+  const doneOrders = [doneOrderClientB1];
+  const processingOrders = [processingOrderClientA1];
+
+  return {
+    pendingOrders,
+    doneOrders,
+    processingOrders,
+    all: [...doneOrders, ...processingOrders, ...pendingOrders],
+  };
+}
 
 export type MainFixture = {
   clients: ClientFixture;
   products: ProductFixture;
   staff: StaffFixture;
   orders: OrdersFixture;
+  items: ItemFixture;
 };
 
 export async function initMainFixture(): Promise<MainFixture> {
@@ -150,12 +243,15 @@ export async function initMainFixture(): Promise<MainFixture> {
     createStaff(),
   ]);
 
-  const [orders] = await Promise.all([createOrders(clients, products)]);
+  const items = await createItems(products);
+
+  const [orders] = await Promise.all([createOrders(clients, products, items)]);
 
   return {
     clients,
     products,
     staff,
     orders,
+    items,
   };
 }

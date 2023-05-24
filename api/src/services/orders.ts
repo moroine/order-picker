@@ -1,5 +1,5 @@
 import { ClientModel } from "../models/client";
-import { IOrder, OrderModel } from "../models/order";
+import { IOrder, IPackage, OrderModel } from "../models/order";
 import { IProduct, ProductModel } from "../models/product";
 
 type ListOrdersItem = {
@@ -37,6 +37,11 @@ type OrderDetails = {
   card: Array<{
     product: IProduct;
     qty: number;
+  }>;
+  packages: Array<{
+    _id: string;
+    items: string[];
+    status: IPackage["status"];
   }>;
 };
 
@@ -77,6 +82,11 @@ export async function getOrder(id: string): Promise<OrderDetails | null> {
         qty,
       };
     }),
+    packages: order.packages.map((p) => ({
+      _id: p._id.toString(),
+      items: p.items.map((i) => i.toString()),
+      status: p.status,
+    })),
   };
 
   return details;

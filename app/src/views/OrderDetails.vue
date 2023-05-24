@@ -12,6 +12,11 @@ type OrderDetails = {
     };
     qty: number;
   }>;
+  packages: Array<{
+    _id: string;
+    items: string[];
+    status: "pending" | "sent" | "received";
+  }>;
 };
 
 export default {
@@ -61,11 +66,7 @@ export default {
         description="Not found"
       />
       <h2 v-if="order">Order {{ order._id }}</h2>
-      <el-descriptions
-        v-if="order"
-        :column="2"
-        :border="true"
-      >
+      <el-descriptions v-if="order" :column="2" :border="true">
         <el-descriptions-item label="Client">{{
           order.clientName
         }}</el-descriptions-item>
@@ -73,13 +74,34 @@ export default {
           order.status
         }}</el-descriptions-item>
       </el-descriptions>
-      <h3 style="margin-top: 20px;">Card</h3>
-      <el-table v-if="order" v-loading="loading" :data="order.card" width="100%">
-        <el-table-column prop="product.name" label="Product Name"/>
-        <el-table-column prop="product.version" label="Product Version"/>
-        <el-table-column prop="product.ref" label="Product Ref"/>
+      <h3 style="margin-top: 20px">Card</h3>
+      <el-table
+        v-if="order"
+        v-loading="loading"
+        :data="order.card"
+        width="100%"
+      >
+        <el-table-column prop="product.name" label="Product Name" />
+        <el-table-column prop="product.version" label="Product Version" />
+        <el-table-column prop="product.ref" label="Product Ref" />
         <el-table-column prop="qty" label="Quantity" />
       </el-table>
+      <h3 style="margin-top: 20px">Packages</h3>
+
+      <el-card class="box-card" 
+        v-if="order"
+        v-loading="loading"
+        v-for="pkg in order.packages"
+      >
+        <template #header>
+          <div class="card-header">
+            <el-tag>{{pkg.status}}</el-tag>
+            <span>Package {{ pkg._id }} </span>
+            <!-- <el-button v-if="pkg.status === 'pending'" class="button" text>Send</el-button> -->
+          </div>
+        </template>
+        <div v-for="i in pkg.items" :key="i" class="text item">{{ i }}</div>
+      </el-card>
     </div>
   </main>
 </template>

@@ -15,7 +15,7 @@ describe("list-orders handler", () => {
   });
 
   test("should view order", async () => {
-    const order = fixture?.orders.ordersClientA[0];
+    const order = fixture?.orders.pendingOrders[0];
     const result = await controller({
       pathParameters: { orderId: order?._id.toString() ?? "" },
     });
@@ -32,9 +32,19 @@ describe("list-orders handler", () => {
           },
           qty: 1,
         },
+        {
+          product: {
+            _id: fixture?.products.KeyNeticV2?._id.toString(),
+            name: "KeyNetic",
+            ref: "KeyNetic_V2",
+            version: 2,
+          },
+          qty: 5,
+        },
       ],
       clientName: "Client A",
       status: "pending",
+      packages: [],
     });
   });
 });

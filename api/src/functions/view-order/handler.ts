@@ -6,7 +6,7 @@ import type {
 import { formatJSONResponse } from "../../libs/api-gateway";
 import { middyfy } from "../../libs/lambda";
 
-import { getOrder, listOrders } from "../../services/orders";
+import { getOrder } from "../../services/orders";
 
 // Init models & MongoDb connection outside to avoid problems with connection pool
 const connection = init();
