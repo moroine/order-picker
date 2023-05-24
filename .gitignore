@@ -9,6 +9,7 @@ api/.esbuild
 
 # typescript output dirs
 api/lib
+app/dist
 
 # Eslint
 .eslintcache
