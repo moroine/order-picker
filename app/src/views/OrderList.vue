@@ -1,10 +1,18 @@
 <script lang="ts">
+import router from '@/router';
+
+// TODO: Import type from API
+type ListOrdersItem = {
+  _id: string;
+  clientName: string;
+  status: string;
+};
 
 export default {
   data() {
     return {
       loading: false,
-      orders: [],
+      orders: [] as ListOrdersItem[],
       error: null,
     };
   },
@@ -34,6 +42,9 @@ export default {
           this.loading = false;
         });
     },
+    handleClick(order: ListOrdersItem) {
+      router.push(`/order/view/${order._id}`)
+    }
   },
 };
 </script>
@@ -41,16 +52,10 @@ export default {
 <template>
   <main>
     <div style="height: 400px">
-      <el-table v-loading="loading" :data="orders">
-        <el-table-column fixed prop="clientName" label="Client" width="150" />
-        <el-table-column prop="status" label="Status" width="120" />
+      <el-table v-loading="loading" :data="orders" @row-click="handleClick">
+        <el-table-column prop="clientName" label="Client"/>
+        <el-table-column prop="status" label="Status" />
       </el-table>
     </div>
   </main>
 </template>
-
-<style>
-.el-table-v2__overlay {
-  z-index: 9;
-}
-</style>

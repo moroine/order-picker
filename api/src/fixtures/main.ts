@@ -1,4 +1,4 @@
-import mongoose, { HydratedDocument } from "mongoose";
+import { HydratedDocument } from "mongoose";
 import { init } from "../models";
 import { ClientModel, IClient } from "../models/client";
 // import { IItem, ItemModel } from "../models/item";

@@ -15,9 +15,7 @@ describe("list-orders handler", () => {
   });
 
   test("should list orders", async () => {
-    const result = await controller({
-      body: { name: "Moroine" },
-    });
+    const result = await controller();
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual(
       fixture?.orders.all.map((o) => ({

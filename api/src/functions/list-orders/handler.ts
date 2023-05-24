@@ -1,17 +1,14 @@
 import { init } from "../../models";
-import type { ValidatedEventAPIGatewayProxyEvent } from "../../libs/api-gateway";
 import { formatJSONResponse } from "../../libs/api-gateway";
 import { middyfy } from "../../libs/lambda";
 
-import schema from "./schema";
 import { listOrders } from "../../services/orders";
+import { APIGatewayProxyResult } from "aws-lambda";
 
 // Init models & MongoDb connection outside to avoid problems with connection pool
 const connection = init();
 
-export const controller: ValidatedEventAPIGatewayProxyEvent<
-  typeof schema
-> = async () => {
+export const controller = async (): Promise<APIGatewayProxyResult> => {
   await connection;
 
   const orders = await listOrders();

@@ -1,7 +1,7 @@
 import type { AWS } from "@serverless/typescript";
 
-import hello from "./src/functions/hello";
 import listOrders from "./src/functions/list-orders";
+import viewOrder from "./src/functions/view-order";
 import loadFixtures from "./src/functions/load-fixtures";
 
 const serverlessConfiguration: AWS = {
@@ -22,7 +22,7 @@ const serverlessConfiguration: AWS = {
       MONGO_URL: "${env:MONGO_URL}",
     },
   },
-  functions: { hello, listOrders, loadFixtures },
+  functions: { listOrders, loadFixtures, viewOrder },
   package: { individually: true },
   custom: {
     esbuild: {

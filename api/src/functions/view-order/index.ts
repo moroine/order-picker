@@ -5,8 +5,8 @@ export default {
   events: [
     {
       httpApi: {
-        method: "post",
-        path: "/hello",
+        method: "get",
+        path: "/order/view/{orderId}",
       },
     },
   ],
