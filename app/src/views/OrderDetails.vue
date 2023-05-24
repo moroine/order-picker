@@ -3,7 +3,7 @@
 type OrderDetails = {
   _id: string;
   clientName: string;
-  status: string;
+  status: "pending" | "processing" | "done";
   card: Array<{
     product: {
       name: string;
@@ -23,6 +23,7 @@ export default {
   data() {
     return {
       loading: false,
+      loadingPackages: false,
       order: null as null | OrderDetails,
       error: null,
     };
@@ -52,6 +53,27 @@ export default {
         })
         .finally(() => {
           this.loading = false;
+        });
+    },
+    createPackage() {
+      const id = this.$route.params.id;
+      this.loadingPackages = true;
+
+      fetch(`${import.meta.env.VITE_APP_API_ENDPOINT}/order/${id}/package`, {
+        method: "POST",
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          if (this.order?._id === id) {
+            this.order.packages = result;
+          }
+        })
+        .catch((error) => {
+          this.error = error;
+          console.error(error);
+        })
+        .finally(() => {
+          this.loadingPackages = false;
         });
     },
   },
@@ -87,21 +109,25 @@ export default {
         <el-table-column prop="qty" label="Quantity" />
       </el-table>
       <h3 style="margin-top: 20px">Packages</h3>
+      <div v-if="order">
+        <el-card
+          class="box-card"
+          v-loading="loading"
+          v-for="pkg in order.packages"
+          :key="pkg._id"
+        >
+          <template #header>
+            <div class="card-header">
+              <el-tag>{{ pkg.status }}</el-tag>
+              <span>Package {{ pkg._id }} </span>
+              <!-- <el-button v-if="pkg.status === 'pending'" class="button" text>Send</el-button> -->
+            </div>
+          </template>
+          <div v-for="i in pkg.items" :key="i" class="text item">{{ i }}</div>
+        </el-card>
 
-      <el-card class="box-card" 
-        v-if="order"
-        v-loading="loading"
-        v-for="pkg in order.packages"
-      >
-        <template #header>
-          <div class="card-header">
-            <el-tag>{{pkg.status}}</el-tag>
-            <span>Package {{ pkg._id }} </span>
-            <!-- <el-button v-if="pkg.status === 'pending'" class="button" text>Send</el-button> -->
-          </div>
-        </template>
-        <div v-for="i in pkg.items" :key="i" class="text item">{{ i }}</div>
-      </el-card>
+        <el-button :loading="loadingPackages" v-on:click="createPackage">Add Package</el-button>
+      </div>
     </div>
   </main>
 </template>
