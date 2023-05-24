@@ -1,4 +1,4 @@
-import { HydratedDocument } from "mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
 import { init } from "../models";
 import { ClientModel, IClient } from "../models/client";
 // import { IItem, ItemModel } from "../models/item";
@@ -129,6 +129,7 @@ export type MainFixture = {
 
 export async function initMainFixture(): Promise<MainFixture> {
   await init();
+  await mongoose.connection.dropDatabase();
 
   const [clients, products, staff] = await Promise.all([
     createClients(),
