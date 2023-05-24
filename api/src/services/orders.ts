@@ -1,4 +1,4 @@
-import { ItemModel } from "src/models/item";
+import { ItemModel } from "../models/item";
 import { ClientModel } from "../models/client";
 import { IOrder, IPackage, OrderModel } from "../models/order";
 import { IProduct, ProductModel } from "../models/product";

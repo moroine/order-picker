@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ElNotification } from 'element-plus';
+import { ElNotification } from "element-plus";
 
 // TODO: Import type from API
 type OrderDetails = {
@@ -21,7 +21,6 @@ type OrderDetails = {
   }>;
 };
 
-
 export type AddItemToOrderInput = {
   packageId: string;
   itemUid: string;
@@ -29,7 +28,7 @@ export type AddItemToOrderInput = {
 
 export type AddItemToOrderSuccess = {
   success: true;
-  packages: OrderDetails["packages"],
+  packages: OrderDetails["packages"];
 };
 
 export type AddItemToOrderFailure = {
@@ -37,7 +36,9 @@ export type AddItemToOrderFailure = {
   error: string;
 };
 
-export type AddItemToOrderResult = AddItemToOrderSuccess | AddItemToOrderFailure;
+export type AddItemToOrderResult =
+  | AddItemToOrderSuccess
+  | AddItemToOrderFailure;
 
 export default {
   data() {
@@ -119,23 +120,27 @@ export default {
 
       this.loadingPackages = true;
 
-      fetch(`${import.meta.env.VITE_APP_API_ENDPOINT}/order/${orderId}/add-item`, {
-        method: "POST",
-        body: JSON.stringify({
-          packageId,
-          itemUid,
-        })
-      })
+      fetch(
+        `${import.meta.env.VITE_APP_API_ENDPOINT}/order/${orderId}/add-item`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            packageId,
+            itemUid,
+          }),
+        }
+      )
         .then((res) => res.json())
         .then((result: AddItemToOrderResult) => {
           if (!result.success) {
             ElNotification({
-              title: 'Error',
+              title: "Error",
               message: result.error,
             });
             return;
           }
-          this.availableItems = this.availableItems?.filter(o => o !== itemUid) ?? null;
+          this.availableItems =
+            this.availableItems?.filter((o) => o !== itemUid) ?? null;
 
           if (this.order?._id === orderId) {
             this.order.packages = result.packages;
@@ -148,7 +153,7 @@ export default {
         .finally(() => {
           this.loadingPackages = false;
         });
-    }
+    },
   },
 };
 </script>
@@ -192,13 +197,17 @@ export default {
           <template #header>
             <div class="card-header">
               <el-tag>{{ pkg.status }}</el-tag>
-              <span>Package {{ order._id + '_' + pkg._id }} </span>
+              <span>Package {{ order._id + "_" + pkg._id }} </span>
               <!-- <el-button v-if="pkg.status === 'pending'" class="button" text>Send</el-button> -->
             </div>
           </template>
           <div v-for="i in pkg.items" :key="i" class="text item">{{ i }}</div>
 
-          <el-select v-if="availableItems && pkg.status === 'pending'" placeholder="Scan Item" @change="(v: string) => scanItem(v, pkg._id)">
+          <el-select
+            v-if="availableItems && pkg.status === 'pending'"
+            placeholder="Scan Item"
+            @change="(v: string) => scanItem(v, pkg._id)"
+          >
             <el-option
               v-for="item in availableItems"
               :key="item"
@@ -208,7 +217,12 @@ export default {
           </el-select>
         </el-card>
 
-        <el-button v-if="order && order.status !== 'done'" :loading="loadingPackages" v-on:click="createPackage">Add Package</el-button>
+        <el-button
+          v-if="order && order.status !== 'done'"
+          :loading="loadingPackages"
+          v-on:click="createPackage"
+          >Add Package</el-button
+        >
       </div>
     </div>
   </main>

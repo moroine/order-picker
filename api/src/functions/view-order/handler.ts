@@ -1,9 +1,5 @@
 import { init } from "../../models";
-import type {
-  APIGatewayEvent,
-  APIGatewayProxyEventBase,
-  APIGatewayProxyResult,
-} from "aws-lambda";
+import type { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { formatJSONResponse } from "../../libs/api-gateway";
 import { middyfy } from "../../libs/lambda";
 

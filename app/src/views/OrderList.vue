@@ -1,5 +1,5 @@
 <script lang="ts">
-import router from '@/router';
+import router from "@/router";
 
 // TODO: Import type from API
 type ListOrdersItem = {
@@ -43,8 +43,8 @@ export default {
         });
     },
     handleClick(order: ListOrdersItem) {
-      router.push(`/order/view/${order._id}`)
-    }
+      router.push(`/order/view/${order._id}`);
+    },
   },
 };
 </script>
@@ -53,7 +53,7 @@ export default {
   <main>
     <div style="height: 400px">
       <el-table v-loading="loading" :data="orders" @row-click="handleClick">
-        <el-table-column prop="clientName" label="Client"/>
+        <el-table-column prop="clientName" label="Client" />
         <el-table-column prop="status" label="Status" />
       </el-table>
     </div>
