@@ -5,6 +5,7 @@
   "main": "serverless.ts",
   "scripts": {
     "start": "sls offline",
+    "dev": "sls offline --reloadHandler",
     "test": "jest src --run-in-band",
     "build": "tsc --project tsconfig.json --noEmit"
   },
@@ -14,6 +15,7 @@
   "dependencies": {
     "@middy/core": "^3.4.0",
     "@middy/http-json-body-parser": "^3.4.0",
+    "ajv": "^8.12.0",
     "mongoose": "^7.2.0"
   },
   "devDependencies": {

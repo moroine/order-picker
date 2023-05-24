@@ -1,4 +1,6 @@
 <script lang="ts">
+import { ElNotification } from 'element-plus';
+
 // TODO: Import type from API
 type OrderDetails = {
   _id: string;
@@ -19,6 +21,24 @@ type OrderDetails = {
   }>;
 };
 
+
+export type AddItemToOrderInput = {
+  packageId: string;
+  itemUid: string;
+};
+
+export type AddItemToOrderSuccess = {
+  success: true;
+  packages: OrderDetails["packages"],
+};
+
+export type AddItemToOrderFailure = {
+  success: false;
+  error: string;
+};
+
+export type AddItemToOrderResult = AddItemToOrderSuccess | AddItemToOrderFailure;
+
 export default {
   data() {
     return {
@@ -26,6 +46,7 @@ export default {
       loadingPackages: false,
       order: null as null | OrderDetails,
       error: null,
+      availableItems: null as null | string[],
     };
   },
   created() {
@@ -38,7 +59,7 @@ export default {
     );
   },
   methods: {
-    fetchData(id: string) {
+    fetchOrderDetails(id: string) {
       this.error = null;
       this.order = null;
       this.loading = true;
@@ -54,6 +75,23 @@ export default {
         .finally(() => {
           this.loading = false;
         });
+    },
+    fetchAvailableItems() {
+      this.error = null;
+      this.availableItems = null;
+      fetch(`${import.meta.env.VITE_APP_API_ENDPOINT}/items/available`)
+        .then((res) => res.json())
+        .then((result) => {
+          this.availableItems = result;
+        })
+        .catch((error) => {
+          this.error = error;
+          console.error(error);
+        });
+    },
+    fetchData(id: string) {
+      this.fetchOrderDetails(id);
+      this.fetchAvailableItems();
     },
     createPackage() {
       const id = this.$route.params.id;
@@ -76,6 +114,41 @@ export default {
           this.loadingPackages = false;
         });
     },
+    scanItem(itemUid: string, packageId: string) {
+      const orderId = this.$route.params.id;
+
+      this.loadingPackages = true;
+
+      fetch(`${import.meta.env.VITE_APP_API_ENDPOINT}/order/${orderId}/add-item`, {
+        method: "POST",
+        body: JSON.stringify({
+          packageId,
+          itemUid,
+        })
+      })
+        .then((res) => res.json())
+        .then((result: AddItemToOrderResult) => {
+          if (!result.success) {
+            ElNotification({
+              title: 'Error',
+              message: result.error,
+            });
+            return;
+          }
+          this.availableItems = this.availableItems?.filter(o => o !== itemUid) ?? null;
+
+          if (this.order?._id === orderId) {
+            this.order.packages = result.packages;
+          }
+        })
+        .catch((error) => {
+          this.error = error;
+          console.error(error);
+        })
+        .finally(() => {
+          this.loadingPackages = false;
+        });
+    }
   },
 };
 </script>
@@ -119,14 +192,23 @@ export default {
           <template #header>
             <div class="card-header">
               <el-tag>{{ pkg.status }}</el-tag>
-              <span>Package {{ pkg._id }} </span>
+              <span>Package {{ order._id + '_' + pkg._id }} </span>
               <!-- <el-button v-if="pkg.status === 'pending'" class="button" text>Send</el-button> -->
             </div>
           </template>
           <div v-for="i in pkg.items" :key="i" class="text item">{{ i }}</div>
+
+          <el-select v-if="availableItems && pkg.status === 'pending'" placeholder="Scan Item" @change="(v: string) => scanItem(v, pkg._id)">
+            <el-option
+              v-for="item in availableItems"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
         </el-card>
 
-        <el-button :loading="loadingPackages" v-on:click="createPackage">Add Package</el-button>
+        <el-button v-if="order && order.status !== 'done'" :loading="loadingPackages" v-on:click="createPackage">Add Package</el-button>
       </div>
     </div>
   </main>

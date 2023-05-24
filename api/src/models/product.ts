@@ -11,7 +11,7 @@ export interface IProduct {
 export const productSchema = new Schema<IProduct>({
   name: { type: String, required: true, enum: ["KeyNetic", "KeyVibe"] },
   version: { type: Number },
-  ref: { type: String, required: true, index: true },
+  ref: { type: String, required: true, index: true, unique: true },
 });
 
 export const ProductModel = model<IProduct>("Product", productSchema);

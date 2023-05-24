@@ -8,7 +8,11 @@ import { APIGatewayProxyResult } from "aws-lambda";
 // Init models & MongoDb connection outside to avoid problems with connection pool
 const connection = init();
 
-export const controller = async (): Promise<APIGatewayProxyResult> => {
+export const controller = async (
+  e: unknown,
+  context: { callbackWaitsForEmptyEventLoop: boolean }
+): Promise<APIGatewayProxyResult> => {
+  context.callbackWaitsForEmptyEventLoop = false;
   await connection;
 
   await initMainFixture();

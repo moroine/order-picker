@@ -1,3 +1,4 @@
+import { ItemModel } from "src/models/item";
 import { ClientModel } from "../models/client";
 import { IOrder, IPackage, OrderModel } from "../models/order";
 import { IProduct, ProductModel } from "../models/product";
@@ -90,4 +91,81 @@ export async function getOrder(id: string): Promise<OrderDetails | null> {
   };
 
   return details;
+}
+
+export type AddItemToOrderInput = {
+  packageId: string;
+  itemUid: string;
+};
+
+export type AddItemToOrderSuccess = {
+  success: true;
+  packages: IOrder["packages"];
+};
+
+export type AddItemToOrderFailure = {
+  success: false;
+  error: string;
+};
+
+export type AddItemToOrderResult =
+  | AddItemToOrderSuccess
+  | AddItemToOrderFailure;
+
+export async function addItemToOrder(
+  orderId: string,
+  input: AddItemToOrderInput
+): Promise<AddItemToOrderSuccess | AddItemToOrderFailure> {
+  const order = await OrderModel.findById(orderId);
+
+  if (!order) {
+    return { success: false, error: "Order not found" };
+  }
+
+  if (order.status === "done") {
+    return { success: false, error: "Cannot add item to done order" };
+  }
+
+  const packagedItems = order.packages.flatMap((p) => p.items);
+
+  const productRef = input.itemUid.split("_", 2).join("_");
+  const productPackagedCount = packagedItems.filter((i) =>
+    i.startsWith(productRef)
+  ).length;
+
+  const expectedCount = order.card.get(productRef) ?? 0;
+
+  if (productPackagedCount + 1 >= expectedCount) {
+    return { success: false, error: "Item should not be added" };
+  }
+
+  let found = false;
+  for (const pkg of order.packages) {
+    if (pkg._id.toString() === input.packageId) {
+      found = true;
+      pkg.items.push(input.itemUid as any);
+    }
+  }
+
+  if (!found) {
+    return { success: false, error: "Package not found" };
+  }
+
+  const updatedItem = await ItemModel.findOneAndUpdate(
+    { uid: input.itemUid, client: null, order: null },
+    {
+      $set: {
+        client: order.client,
+        order: order._id,
+      },
+    }
+  );
+
+  if (!updatedItem) {
+    return { success: false, error: "Item is not available" };
+  }
+
+  await order.save();
+
+  return { success: true, packages: order.packages };
 }

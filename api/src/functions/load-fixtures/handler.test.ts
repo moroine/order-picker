@@ -14,7 +14,10 @@ describe("load-fixtures handler", () => {
 
   test("should load fixtures", async () => {
     await expect(ClientModel.countDocuments()).resolves.toBe(0);
-    const result = await controller();
+    const result = await controller(
+      {},
+      { callbackWaitsForEmptyEventLoop: true }
+    );
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual({ success: true });
     await expect(ClientModel.countDocuments()).resolves.toBe(3);

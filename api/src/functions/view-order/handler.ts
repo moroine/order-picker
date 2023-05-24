@@ -1,5 +1,6 @@
 import { init } from "../../models";
 import type {
+  APIGatewayEvent,
   APIGatewayProxyEventBase,
   APIGatewayProxyResult,
 } from "aws-lambda";
@@ -12,8 +13,10 @@ import { getOrder } from "../../services/orders";
 const connection = init();
 
 export const controller = async (
-  event: Pick<APIGatewayProxyEventBase<unknown>, "pathParameters">
+  event: Pick<APIGatewayEvent, "pathParameters">,
+  context: { callbackWaitsForEmptyEventLoop: boolean }
 ): Promise<APIGatewayProxyResult> => {
+  context.callbackWaitsForEmptyEventLoop = false;
   await connection;
 
   const orderId = event.pathParameters?.orderId ?? null;

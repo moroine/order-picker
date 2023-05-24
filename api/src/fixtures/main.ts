@@ -232,6 +232,7 @@ export async function initMainFixture(): Promise<MainFixture> {
   await init();
   await Promise.all([
     ClientModel.deleteMany({}),
+    ItemModel.deleteMany({}),
     ProductModel.deleteMany({}),
     StaffModel.deleteMany({}),
     OrderModel.deleteMany({}),

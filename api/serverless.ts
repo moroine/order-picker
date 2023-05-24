@@ -3,7 +3,9 @@ import type { AWS } from "@serverless/typescript";
 import listOrders from "./src/functions/list-orders";
 import viewOrder from "./src/functions/view-order";
 import createPackage from "./src/functions/create-package";
+import availableItems from "./src/functions/available-items";
 import loadFixtures from "./src/functions/load-fixtures";
+import addItem from "./src/functions/add-item";
 
 const serverlessConfiguration: AWS = {
   useDotenv: true,
@@ -23,7 +25,14 @@ const serverlessConfiguration: AWS = {
       MONGO_URL: "${env:MONGO_URL}",
     },
   },
-  functions: { listOrders, loadFixtures, viewOrder, createPackage },
+  functions: {
+    listOrders,
+    loadFixtures,
+    viewOrder,
+    createPackage,
+    availableItems,
+    addItem,
+  },
   package: { individually: true },
   custom: {
     esbuild: {

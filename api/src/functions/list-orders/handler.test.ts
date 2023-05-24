@@ -15,7 +15,10 @@ describe("list-orders handler", () => {
   });
 
   test("should list orders", async () => {
-    const result = await controller();
+    const result = await controller(
+      {},
+      { callbackWaitsForEmptyEventLoop: true }
+    );
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual(
       fixture?.orders.all.map((o) => ({

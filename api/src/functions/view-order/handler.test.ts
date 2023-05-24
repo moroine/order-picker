@@ -16,9 +16,12 @@ describe("list-orders handler", () => {
 
   test("should view order", async () => {
     const order = fixture?.orders.pendingOrders[0];
-    const result = await controller({
-      pathParameters: { orderId: order?._id.toString() ?? "" },
-    });
+    const result = await controller(
+      {
+        pathParameters: { orderId: order?._id.toString() ?? "" },
+      },
+      { callbackWaitsForEmptyEventLoop: true }
+    );
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual({
       _id: order?._id.toString() ?? "",

@@ -8,7 +8,7 @@ export interface IItem {
 }
 
 export const itemSchema = new Schema<IItem>({
-  uid: { type: String, required: true },
+  uid: { type: String, required: true, unique: true },
   client: {
     type: Schema.Types.ObjectId,
     ref: "Client",
@@ -20,6 +20,7 @@ export const itemSchema = new Schema<IItem>({
     ref: "Order",
     required: false,
     default: null,
+    index: true,
   },
 });
 
