@@ -7,6 +7,7 @@
     "start": "sls offline",
     "dev": "sls offline --reloadHandler",
     "test": "jest src --run-in-band",
+    "deploy": "sls deploy",
     "build": "tsc --project tsconfig.json --noEmit"
   },
   "engines": {
