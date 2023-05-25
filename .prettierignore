@@ -1,0 +1,15 @@
+# package directories
+node_modules
+
+# Serverless directories
+api/.serverless
+
+# esbuild directories
+api/.esbuild
+
+# typescript output dirs
+api/lib
+app/dist
+
+# Eslint
+.eslintcache
